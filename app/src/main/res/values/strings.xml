@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">G36FYP1920</string>
+    <string name="title_activity_register">RegisterActivity</string>
+    <string name="title_activity_start">StartActivity</string>
+    <string name="register">Register</string>
+    <string name="email_id">Email</string>
+    <string name="create_account">Create New Account</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="sign_in"><u>Sign In</u></string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="login_account">Login</string>
+    <string name="project">Final Year Project</string>
+    <string name="college">R.C.Patel Institute Of Technology, Shirpur</string>
+    <string name="group">Group no. 36</string>
+    <string name="team_member_1">by Ishan D. Gupta &amp; Sandhya S. Mahajan</string>
+    <string name="project_title">Android Encrypted Chatting &amp; Secure Image Sharing System with Traceability using micro NLP library, Text Flags and Heat Mapping.</string>
+    <string name="college_logo_description">R.C.Patel Institute Of Technology, Shirpur Logo</string>
+    <string name="title_activity_splash">SplashActivity</string>
+    <string name="year">2019–2020</string>
+    <string name="logout">Logout</string>
+    <string name="title_chat">Chats</string>
+    <string name="title_users">Users</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+</resources>
