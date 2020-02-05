@@ -4,4 +4,4 @@ Final Year Project by Ishan D. Gupta and Sandhya S. Mahajan\
 R.C.P.I.T, Shirpur\
 Note: This Repository holds the redflagged keyword data and the location data for heatmap generation\
 Generated heatmap can be checked here:\
-Redflagged keywords can be checked here:\
+Redflagged keywords can be checked here:
