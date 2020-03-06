@@ -11,6 +11,7 @@ import android.widget.Button;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.rcpit.g36fyp1920.micronlp.microNLP;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -48,5 +49,7 @@ public class SplashActivity extends AppCompatActivity {
                 startActivity(new Intent(SplashActivity.this, LoginActivity.class));
             }
         });
+
+        microNLP.test(SplashActivity.this);
     }
 }

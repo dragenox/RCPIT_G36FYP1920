@@ -3,6 +3,7 @@
     <color name="colorPrimary">#0898EC</color>
     <color name="colorPrimaryDark">#08385A</color>
     <color name="colorAccent">#FF5722</color>
-
+    <color name="colorGrey">#BFBFBF</color>
+    <color name="messageActivityBackground">#E6E6E6</color>
     <color name="black_overlay">#66000000</color>
 </resources>
