@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="Gradle: com.github.dragenox:microNLP:0.0.2@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/0e80d138062f6ddf2427da204ec3e475/jetified-microNLP-0.0.2/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/0e80d138062f6ddf2427da204ec3e475/jetified-microNLP-0.0.2/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/637571580751fd95f1efc4c5713fe5e5/jetified-microNLP-0.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/637571580751fd95f1efc4c5713fe5e5/jetified-microNLP-0.0.2/res" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

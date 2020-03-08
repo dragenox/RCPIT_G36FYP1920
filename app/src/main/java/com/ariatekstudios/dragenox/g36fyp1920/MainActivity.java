@@ -5,10 +5,22 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.FrameLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import com.ariatekstudios.dragenox.g36fyp1920.models.User;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+
 import com.ariatekstudios.dragenox.g36fyp1920.fragments.ChatsFragment;
 import com.ariatekstudios.dragenox.g36fyp1920.fragments.UsersFragment;
+import com.ariatekstudios.dragenox.g36fyp1920.models.User;
 import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -19,17 +31,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.FrameLayout;
-import android.widget.TextView;
-
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -58,7 +62,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         bottomNavigationView.setOnNavigationItemSelectedListener(MainActivity.this);
         loadFragment(new ChatsFragment());
 
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        try {
+            checkConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -82,6 +93,33 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         });
     }
 
+    private void checkConnection() throws IOException, InterruptedException {
+        if(!isInternetAvailable()){
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Unable to Login!")
+                    .setMessage("Login failed, due to no internet access, you can try changing the network settings or retry.")
+                    .setPositiveButton(R.string.settings, (dialog, which) -> {
+                        startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS));
+                    })
+                    .setOnDismissListener(dialog -> {
+                        try {
+                            checkConnection();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    })
+                    .show();
+        }
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    }
+
+    public boolean isInternetAvailable() throws InterruptedException, IOException {
+        final String command = "ping -c 1 google.com";
+        return Runtime.getRuntime().exec(command).waitFor() == 0;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main_menu, menu);
@@ -90,20 +128,21 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.logout) {
+        if (item.getItemId() == R.id.main_menu_logout) {
             new AlertDialog.Builder(MainActivity.this)
                     .setTitle("Logout")
                     .setMessage("Do you want to logout from your account?")
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            FirebaseAuth.getInstance().signOut();
-                            startActivity(new Intent(MainActivity.this, SplashActivity.class));
-                            finish();
-                        }
+                    .setPositiveButton(R.string.yes, (dialog, which) -> {
+                        FirebaseAuth.getInstance().signOut();
+                        startActivity(new Intent(MainActivity.this, SplashActivity.class));
+                        finish();
                     })
                     .setNegativeButton(R.string.no,null)
                     .show();
+        }
+        if (item.getItemId() == R.id.main_menu_profile) {
+            startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -123,7 +162,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        Fragment fragment = null;
         switch (menuItem.getItemId()) {
             case R.id.navigation_chats:
                 return loadFragment(new ChatsFragment());

@@ -18,7 +18,8 @@
         android:text="@string/login_account"
         android:textAlignment="center"
         android:textSize="20sp"
-        android:textColor="@color/colorPrimaryDark"/>
+        android:textColor="@color/colorPrimaryDark"
+        android:gravity="center_horizontal" />
 
     <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/email"
@@ -70,6 +71,22 @@
         android:text="@string/register"
         android:textColor="@color/colorAccent"
         android:textAlignment="center"
-        android:textAllCaps="true"/>
+        android:textAllCaps="true"
+        android:gravity="center_horizontal" />
+
+    <TextView
+        android:id="@+id/forgot_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="@id/sign_in_button"
+        app:layout_constraintRight_toRightOf="@id/sign_in_button"
+        app:layout_constraintTop_toBottomOf="@id/sign_in_button"
+        android:layout_marginTop="20dp"
+        android:padding="8dp"
+        android:text="@string/forgot_password"
+        android:textColor="@color/colorAccent"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:gravity="center_horizontal" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

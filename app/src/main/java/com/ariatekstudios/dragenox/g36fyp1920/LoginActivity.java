@@ -28,6 +28,7 @@ public class LoginActivity extends AppCompatActivity {
     MaterialEditText email, password;
     Button sign_in_button;
     TextView register_button;
+    TextView forgot_password_button;
 
     FirebaseAuth firebaseAuth;
 
@@ -42,48 +43,43 @@ public class LoginActivity extends AppCompatActivity {
         password = findViewById(R.id.password);
         sign_in_button = findViewById(R.id.sign_in_button);
         register_button = findViewById(R.id.register_button);
+        forgot_password_button = findViewById(R.id.forgot_button);
 
         firebaseAuth = FirebaseAuth.getInstance();
 
 
-        sign_in_button.setOnClickListener(new View.OnClickListener() {
-            @SuppressWarnings("ConstantConditions")
-            @Override
-            public void onClick(View v) {
-                String text_email;
-                String text_password;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-                    text_email = Objects.requireNonNull(email.getText()).toString();
-                    text_password = Objects.requireNonNull(password.getText()).toString();
-                } else {
-                    text_email = email.getText().toString();
-                    text_password = password.getText().toString();
-                }
-                if (TextUtils.isEmpty(text_email) || TextUtils.isEmpty(text_password)){
-                    Toast.makeText(LoginActivity.this, "Fields Missing", Toast.LENGTH_SHORT).show();
-                } else {
-                    firebaseAuth.signInWithEmailAndPassword(text_email,text_password)
-                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()){
-                                        startActivity(new Intent(LoginActivity.this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
-                                        finish();
-                                    } else {
-                                        Toast.makeText(LoginActivity.this, "Login failed!", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
-                }
+        sign_in_button.setOnClickListener(v -> {
+            String text_email;
+            String text_password;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                text_email = Objects.requireNonNull(email.getText()).toString();
+                text_password = Objects.requireNonNull(password.getText()).toString();
+            } else {
+                text_email = Objects.requireNonNull(email.getText()).toString();
+                text_password = Objects.requireNonNull(password.getText()).toString();
+            }
+            if (TextUtils.isEmpty(text_email) || TextUtils.isEmpty(text_password)){
+                Toast.makeText(LoginActivity.this, "Fields Missing", Toast.LENGTH_SHORT).show();
+            } else {
+                firebaseAuth.signInWithEmailAndPassword(text_email, text_password)
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()){
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
+                                finish();
+                            } else {
+                                Toast.makeText(LoginActivity.this, "Login failed!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
             }
         });
 
-        register_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
-                finish();
-            }
+        register_button.setOnClickListener(v -> {
+            startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+            finish();
+        });
+
+        forgot_password_button.setOnClickListener(v -> {
+            startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
         });
 
     }

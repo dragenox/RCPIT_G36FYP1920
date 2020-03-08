@@ -102,6 +102,7 @@ public class UsersFragment extends Fragment {
         userList = view.findViewById(R.id.user_list);
         userList.setHasFixedSize(true);
         userList.setLayoutManager(new LinearLayoutManager(getContext()));
+        userList.setAdapter(null);
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -143,9 +144,7 @@ public class UsersFragment extends Fragment {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     User user = snapshot.getValue(User.class);
 
-                    assert user != null;
-                    assert firebaseUser != null;
-                    if (!user.getId().equals(firebaseUser.getUid())){
+                    if (firebaseUser != null && user != null && !user.getId().equals(firebaseUser.getUid())){
                         users.add(user);
                     }
                 }

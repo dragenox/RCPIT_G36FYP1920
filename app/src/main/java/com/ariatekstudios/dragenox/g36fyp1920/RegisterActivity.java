@@ -91,30 +91,23 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void register(final String username, String email, String password){
         firebaseAuth.createUserWithEmailAndPassword(email,password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()){
-                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                            assert firebaseUser != null;
-                            String userId = firebaseUser.getUid();
-                            databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userId);
-                            HashMap<String, String> hashMap = new HashMap<>();
-                            hashMap.put("id", userId);
-                            hashMap.put("username", username);
-                            hashMap.put("imageURL", "default");
-                            databaseReference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()){
-                                        startActivity(new Intent(RegisterActivity.this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
-                                        finish();
-                                    }
-                                }
-                            });
-                        } else {
-                            Toast.makeText(RegisterActivity.this, "Unable to register with this email or password", Toast.LENGTH_SHORT).show();
-                        }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()){
+                        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                        String userId = Objects.requireNonNull(firebaseUser).getUid();
+                        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userId);
+                        HashMap<String, String> hashMap = new HashMap<>();
+                        hashMap.put("id", userId);
+                        hashMap.put("username", username);
+                        hashMap.put("imageURL", "default");
+                        databaseReference.setValue(hashMap).addOnCompleteListener(task1 -> {
+                            if(task1.isSuccessful()){
+                                startActivity(new Intent(RegisterActivity.this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
+                                finish();
+                            }
+                        });
+                    } else {
+                        Toast.makeText(RegisterActivity.this, "Unable to register with this email or password", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

@@ -36,19 +36,9 @@ public class SplashActivity extends AppCompatActivity {
         register = findViewById(R.id.register_button);
         sign_in = findViewById(R.id.sign_in_button);
 
-        register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(SplashActivity.this, RegisterActivity.class));
-            }
-        });
+        register.setOnClickListener(v -> startActivity(new Intent(SplashActivity.this, RegisterActivity.class)));
 
-        sign_in.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(SplashActivity.this, LoginActivity.class));
-            }
-        });
+        sign_in.setOnClickListener(v -> startActivity(new Intent(SplashActivity.this, LoginActivity.class)));
 
         microNLP.test(SplashActivity.this);
     }
