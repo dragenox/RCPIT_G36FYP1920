@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -40,6 +41,10 @@ public class SplashActivity extends AppCompatActivity {
 
         sign_in.setOnClickListener(v -> startActivity(new Intent(SplashActivity.this, LoginActivity.class)));
 
-        microNLP.test(SplashActivity.this);
+        try {
+            microNLP.test(SplashActivity.this);
+        }catch (Exception e){
+            Log.e("microNLP", "Error with library!");
+        }
     }
 }

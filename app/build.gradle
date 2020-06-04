@@ -46,9 +46,10 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.7.1'
     implementation 'com.google.firebase:firebase-messaging:20.1.2'
     implementation 'com.google.firebase:firebase-storage:19.1.1'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
 
     //microNLP Library
-    implementation 'com.github.dragenox:microNLP:0.0.2'
+    implementation 'com.github.dragenox:microNLP:0.1.6'
 }
 
 apply plugin: 'com.google.gms.google-services'

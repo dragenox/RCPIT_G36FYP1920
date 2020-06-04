@@ -2,18 +2,25 @@ package com.ariatekstudios.dragenox.g36fyp1920;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +34,10 @@ import com.ariatekstudios.dragenox.g36fyp1920.notifications.MyResponse;
 import com.ariatekstudios.dragenox.g36fyp1920.notifications.Sender;
 import com.ariatekstudios.dragenox.g36fyp1920.notifications.Token;
 import com.bumptech.glide.Glide;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -35,6 +46,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.rcpit.g36fyp1920.micronlp.microNLP;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +58,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 public class MessageActivity extends AppCompatActivity {
 
     CircleImageView profile_image;
@@ -53,6 +68,8 @@ public class MessageActivity extends AppCompatActivity {
 
     FirebaseUser firebaseUser;
     DatabaseReference reference;
+
+    RelativeLayout relativeLayout;
 
     ImageButton btn_send;
     EditText text_send;
@@ -72,6 +89,11 @@ public class MessageActivity extends AppCompatActivity {
 
     boolean notify = false;
 
+    private FusedLocationProviderClient fusedLocationClient;
+    private String sLocation;
+
+    private static final int LOCATION_PERMISSION_CODE = 100;
+
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +112,8 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
 
+        microNLP.initMicroNLP(MessageActivity.this);
+
         apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
 
         recyclerView = findViewById(R.id.recycler_view);
@@ -97,6 +121,9 @@ public class MessageActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         linearLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(linearLayoutManager);
+        relativeLayout = findViewById(R.id.relativeLayout);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         profile_image = findViewById(R.id.profile_image);
         username = findViewById(R.id.username);
@@ -110,14 +137,26 @@ public class MessageActivity extends AppCompatActivity {
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                notify = true;
                 String msg = text_send.getText().toString();
-                if (!msg.equals("")){
-                    sendMessage(firebaseUser.getUid(), userId, msg);
+                AlertDialog dialog = microNLP.searchMessage(MessageActivity.this, msg);
+                if (dialog != null) {
+
+                    if (microNLP.checkViolations(MessageActivity.this)) {
+                        getCurrentLocation();
+                        AlertDialog dialog1 = new AlertDialog.Builder(MessageActivity.this)
+                                .setTitle("Exceeded violation limit for 24hrs!")
+                                .setMessage("Violations: " + microNLP.getViolations(MessageActivity.this) +
+                                        "\nTotal Severity: " + microNLP.getTotalSeverity(MessageActivity.this) +
+                                        "\nLocation: " + sLocation)
+                                .setNegativeButton(android.R.string.cancel, null)
+                                .show();
+                    }
+                    else {
+                        dialog.show();
+                    }
                 } else {
-                    Toast.makeText(MessageActivity.this, "You can't send empty message", Toast.LENGTH_SHORT).show();
+                    sendText(msg);
                 }
-                text_send.setText("");
             }
         });
 
@@ -148,6 +187,16 @@ public class MessageActivity extends AppCompatActivity {
         seenMessage(userId);
     }
 
+    private void sendText(String msg){
+        notify = true;
+        if (!msg.equals("")){
+            sendMessage(firebaseUser.getUid(), userId, msg);
+        } else {
+            Toast.makeText(MessageActivity.this, "You can't send empty message", Toast.LENGTH_SHORT).show();
+        }
+        text_send.setText("");
+    }
+
     private void seenMessage(final String userId){
         reference = FirebaseDatabase.getInstance().getReference("Chats");
         seenListener = reference.addValueEventListener(new ValueEventListener() {
@@ -169,6 +218,22 @@ public class MessageActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void getCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_CODE);
+        }
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            sLocation = location.getLatitude() + ", " + location.getLongitude();
+                        }
+                    }
+                });
     }
 
     private void sendMessage(String sender, final String receiver, String message){
@@ -325,5 +390,47 @@ public class MessageActivity extends AppCompatActivity {
         reference.removeEventListener(seenListener);
         status("offline");
         currentUser("none");
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        if (requestCode == LOCATION_PERMISSION_CODE) {
+            if (grantResults.length > 0) {
+
+                boolean networkAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                boolean gpsAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+
+                if (networkAccepted && gpsAccepted)
+                    Snackbar.make(relativeLayout, "Network Permission Granted.", Snackbar.LENGTH_LONG).show();
+                else {
+
+                    Snackbar.make(relativeLayout, "GPS Permission Granted.", Snackbar.LENGTH_LONG).show();
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (shouldShowRequestPermissionRationale(ACCESS_FINE_LOCATION)) {
+                            showMessageOKCancel("You need to allow access to both the permissions",
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            requestPermissions(new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION},
+                                                    LOCATION_PERMISSION_CODE);
+                                        }
+                                    });
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+
+    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(MessageActivity.this)
+                .setMessage(message)
+                .setPositiveButton("OK", okListener)
+                .setNegativeButton("Cancel", null)
+                .create()
+                .show();
     }
 }
